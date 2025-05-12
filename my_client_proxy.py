@@ -40,27 +40,27 @@ class CustomClientProxy(ClientProxy):
     def __init__(self, cid: str, client: Client):
         super().__init__(cid)
         self.client = client
-        print(f"[Proxy {self.cid}] Created, linked to Client {client.cid}")
+        print(f"[Proxy {self.cid}] Created, linked to Client {client.partition_id}")
 
-    def get_properties(self, ins: GetPropertiesIns, timeout: Optional[float]) -> GetPropertiesRes:
-        print(f"[Proxy {self.cid}] Delegating get_properties to Client {self.client.cid}")
+    def get_properties(self, ins: GetPropertiesIns, timeout: Optional[float], group_id) -> GetPropertiesRes:
+        print(f"[Proxy {self.cid}] Delegating get_properties to Client {self.client.partition_id}  -> group_id: {group_id}")
         return self.client.get_properties(ins)
 
-    def get_parameters(self, ins: GetParametersIns, timeout: Optional[float]) -> GetParametersRes:
-        print(f"[Proxy {self.cid}] Delegating get_parameters to Client {self.client.cid}")
+    def get_parameters(self, ins: GetParametersIns, timeout: Optional[float], group_id) -> GetParametersRes:
+        print(f"[Proxy {self.cid}] Delegating get_parameters to Client {self.client.partition_id} -> group_id: {group_id}")
         return self.client.get_parameters(ins)
 
-    def fit(self, ins: FitIns, timeout: Optional[float]) -> FitRes:
-        print(f"[Proxy {self.cid}] Delegating fit to Client {self.client.cid}")
+    def fit(self, ins: FitIns, timeout: Optional[float], group_id) -> FitRes:
+        print(f"[Proxy {self.cid}] Delegating fit to Client {self.client.partition_id} -> group_id: {group_id}")
         return self.client.fit(ins)
 
-    def evaluate(self, ins: EvaluateIns, timeout: Optional[float]) -> EvaluateRes:
-        print(f"[Proxy {self.cid}] Delegating evaluate to Client {self.client.cid}")
+    def evaluate(self, ins: EvaluateIns, timeout: Optional[float], group_id) -> EvaluateRes:
+        print(f"[Proxy {self.cid}] Delegating evaluate to Client {self.client.partition_id} -> group_id: {group_id}")
         return self.client.evaluate(ins)
 
-    def reconnect(self, ins: flwr.common.ReconnectIns, timeout: Optional[float]) -> flwr.common.DisconnectRes:
+    def reconnect(self, ins: flwr.common.ReconnectIns, timeout: Optional[float], group_id) -> flwr.common.DisconnectRes:
         # In this simulation, reconnect doesn't do much
-        print(f"[Proxy {self.cid}] Reconnect called (no-op in simulation)")
+        print(f"[Proxy {self.cid}] Reconnect called (no-op in simulation) -> group_id: {group_id}")
         return flwr.common.DisconnectRes(reason="Simulation reconnect (no-op)")
 
 def test_cid() -> None:

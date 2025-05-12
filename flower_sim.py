@@ -48,8 +48,8 @@ def weighted_average(metrics: List[Tuple[int, Metrics]]) -> Metrics:
     return {"accuracy": sum(accuracies) / sum(examples)}
 
 
-from .my_client_proxy import CustomClientProxy
-from .my_client_manager import SimpleClientManager
+from my_client_proxy import CustomClientProxy
+from my_client_manager import SimpleClientManager
 
 
 
@@ -58,10 +58,11 @@ if __name__ == "__main__":
     NUM_CLIENTS = 10
 
 
-    from .my_flower_client import Net, load_dataset, DEVICE
+    from my_flower_client import Net, load_datasets, DEVICE
+    from my_flower_client import FlowerClient as MyFlowerClient
     def create_client(partition_id: int) -> Client:
-        trainloader, valloader, _ = load_dataset(partition_id)
-        return Client(
+        trainloader, valloader, _ = load_datasets(partition_id, num_partitions=NUM_CLIENTS)
+        return MyFlowerClient(
             partition_id=partition_id,
             net=Net().to(DEVICE),
             trainloader=trainloader,
@@ -70,14 +71,21 @@ if __name__ == "__main__":
 
     # Instantiate clients
     clients = [create_client(i) for i in range(NUM_CLIENTS)]
+    print("-" * 20)
+    print(f"Created {NUM_CLIENTS} clients.")
 
 
     # Instantiate some custom client proxies
     client_proxies = [CustomClientProxy(f"client_{i}", clients[i]) for i in range(NUM_CLIENTS)]
+    print("-" * 20)
+    print(f"Created {NUM_CLIENTS} client proxies.")
 
     my_client_manager = SimpleClientManager()
     for client_proxy in client_proxies:
         my_client_manager.register(client_proxy)
+
+    print("-" * 20)
+    print(f"Registered {NUM_CLIENTS} client proxies to the client manager.")
 
 
 
@@ -97,3 +105,19 @@ if __name__ == "__main__":
         strategy=strategy
     )
     my_server.set_max_workers(10)
+    print("-" * 20)
+    print("Starting server...")
+
+    history = my_server.fit(num_rounds=3, timeout=10)
+    print("-" * 20)
+    print("Server finished running.")
+    print("Training history:", history)
+
+    # Extract and print the final metrics
+    if hasattr(history, "metrics_distributed"):
+        final_metrics = history.metrics_distributed.get("evaluate", [])
+        print("Final metrics (evaluate):", final_metrics)
+    else:
+        print("No metrics available in history.")
+
+    

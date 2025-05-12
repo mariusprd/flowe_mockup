@@ -196,16 +196,5 @@ def load_datasets(partition_id: int, num_partitions: int):
     testloader = DataLoader(testset, batch_size=32)
     return trainloader, valloader, testloader
 
-# function to create a client on demand
-def client_fn(context: Context) -> Client:
-    net = Net().to(DEVICE)
-    partition_id = context.node_config["partition-id"]
-    num_partitions = context.node_config["num-partitions"]
-    trainloader, valloader, _ = load_datasets(partition_id, num_partitions)
-    return FlowerClient(partition_id, net, trainloader, valloader).to_client()
-
-
-# Create the ClientApp
-client = ClientApp(client_fn=client_fn)
 
 

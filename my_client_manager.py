@@ -25,7 +25,6 @@ from flwr.common.logger import log
 from flwr.server.client_manager import ClientManager
 
 from flwr.server.client_proxy import ClientProxy
-from flwr.server.client_proxy import Criterion
 
 
 
@@ -123,7 +122,7 @@ class SimpleClientManager(ClientManager):
         self,
         num_clients: int,
         min_num_clients: Optional[int] = None,
-        criterion: Optional[Criterion] = None,
+        criterion = None,
     ) -> list[ClientProxy]:
         """Sample a number of Flower ClientProxy instances."""
         # Block until at least num_clients are connected.
