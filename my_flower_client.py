@@ -171,7 +171,7 @@ class FlowerClient(Client):
             num_examples=len(self.valloader),
             metrics={"accuracy": float(accuracy)},
         )
-    
+
 
 def load_datasets(partition_id: int, num_partitions: int):
     fds = FederatedDataset(dataset="cifar10", partitioners={"train": num_partitions})
